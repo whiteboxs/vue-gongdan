@@ -1,19 +1,26 @@
 <template>
-  <el-dialog v-model="DialogVisible" title="编辑工单" width="30%" align-center>
-    <el-form :model="form" label-width="80px">
-      <el-form-item label="标题"><el-input v-model="form.title" />
+  <el-dialog v-model="DialogVisible"
+   title="编辑工单" 
+   width="30%" 
+   align-center>
+    <el-form :model="form" 
+    label-width="80px"
+    ref="addRuleForm"
+    :rules="rules"
+    >
+      <el-form-item label="标题" prop="title" ><el-input v-model="form.title" />
       </el-form-item>
-      <el-form-item label="问题环境">
-        <el-select v-model="form.environment_id">
-          <el-option :label="item.name" :value="item.id" v-for="item in envdata" :key="item.id" />
+      <el-form-item label="运行环境" prop="environment_id">
+        <el-select v-model="form.environment_id" >
+          <el-option :label="item.name" :value="item.name" v-for="item in envdata" :key="item.id" />
         </el-select>
       </el-form-item>
-      <el-form-item label="问题详情">
+      <el-form-item label="工单详情" prop="description">
         <el-input v-model="form.description" type="textarea" />
       </el-form-item>
-      <el-form-item label="经办人">
-        <el-select v-model="form.assignee_id" placeholder="请选择经办人">
-          <el-option :label="item.name" :value="item.id" v-for="item in assigneedata" :key="item.id" />
+      <el-form-item label="经办人" prop="assignee_id">
+        <el-select v-model="form.assignee_id" placeholder="请选择经办人" >
+          <el-option :label="item.name" :value="item.name" v-for="item in assigneedata" :key="item.id" />
         </el-select>
       </el-form-item>
     </el-form>
@@ -27,6 +34,10 @@
 </template>
 
 <script setup>
+
+
+
+
 // TODO: 编辑
 import { getenvironments, getassignees, putticket } from '../http/api.js'
 import { ref } from 'vue'
@@ -41,6 +52,27 @@ const form = ref({
   id: ''
 })
 
+const rules = reactive ({
+  title: [
+    { required: true, message: '请输入标题', trigger: 'blur'
+   }
+   ],
+  environment_id: [
+    {
+      required: true,message: '请选择使用环境',trigger: 'change',
+    } 
+    ],
+  description: [
+    {
+      required: true, message: '请输入具体信息', trigger: 'blur' ,
+    } 
+    ],
+  assignee_id: [
+    {
+      required: true,message: '请选择使用经办人',trigger: 'change',
+    } 
+    ]
+  })   
 
 //环境接口
 const envdata = ref([])
@@ -48,6 +80,9 @@ const envlist = async () => {
   const res = await getenvironments()
   envdata.value = res.data.data
 }
+
+
+
 onMounted(() => envlist())
 
 // 经办人接口
@@ -56,6 +91,9 @@ const assigneelist = async () => {
   const res = await getassignees()
   assigneedata.value = res.data.data
 }
+
+
+
 onMounted(() => assigneelist())
 
 const open = (row) => {
@@ -76,18 +114,36 @@ defineExpose({
 
 //更新
 const emit = defineEmits(['onupdate'])
+const addRuleForm = ref();
 const onupdate = async () => {
   try {
+    await addRuleForm.value.validate();
+      if (!form) {
+      console.log("表单验证不通过");
+      return; // 验证不通过时，停止继续执行下面的代码
+    } 
+  // 0. 转换经办人和环境的名称为 ID
+  const environmentId = envdata.value.find(item => item.name === form.value.environment_id)?.id;
+  const assigneeId = assigneedata.value.find(item => item.name === form.value.assignee_id)?.id;
+
+  if (!environmentId || !assigneeId) {
+    console.error('无效的环境或经办人名称');
+    return;
+  }
     //1.收集表单数据，调用接口
-    console.log('put钱的值',form)
-    await putticket(form.value.id, {
+    const updatedData = {
       title: form.value.title,
-      environment_id: form.value.environment_id,
+      environment_id: environmentId, // 使用转换后的 ID
       description: form.value.description,
-      assignee_id: form.value.assignee_id,
-    })
-    //2.关闭弹窗
-    DialogVisible.value = false
+      assignee_id: assigneeId, // 使用转换后的 ID
+    };
+    console.log('put前没有转换的值',form.value)
+    console.log('转换后的',updatedData)
+    await putticket(form.value.id, updatedData)
+    //清除提交的表单
+    addRuleForm.value.resetFields()
+    // 关闭窗口和刷新列表
+    DialogVisible.value = false;
 
     //3.通知父主键做列表更新(子传父)都感觉超难
     emit('onupdate')

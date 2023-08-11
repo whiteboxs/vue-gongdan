@@ -30,80 +30,74 @@
         </el-menu>
     </el-aside>
 </template>
-<script>
-export default {
-    setup() {
-        const list = [
-           {
-                path: '/home',
-                name: 'home',
-                label: '首页',
-                icon: 'HomeFilled',
-                url: '/home'
-            },
+
+
+
+<script setup>
+const list = [
+    {
+        path: '/home',
+        name: 'home',
+        label: '首页',
+        icon: 'HomeFilled',
+        url: '/home'
+    },
+    {
+        path: '/usermanage',
+        name: 'usermanage',
+        label: '用户管理',
+        icon: 'user',
+        url: '/usermanage'
+    },
+    {
+        path: '/ticket',
+        name: 'ticket',
+        label: '工单管理',
+        icon: 'List',
+        url: '/ticket',
+    },
+    {
+        path: '/ticketlist',
+        name: '/ticketlist',
+        label: '工单列表',
+        icon: 'Document',
+        url: '/ticket/ticketlist'
+    },
+    {
+        path: '/ticketprocessed',
+        name: '/ticketprocessed',
+        label: '工单处理',
+        icon: 'Document',
+        url: '/ticket/ticketprocessed'
+    },
+    {
+        label: '其他',
+        icon: 'location',
+        path: '/other',
+        name: 'other',
+        url: '/others',
+        children: [
             {
-                path: '/usermanage',
-                name: 'usermanage',
-                label: '用户管理',
-                icon: 'user',
-                url: '/usermanage'
-            },
-            {
-                path: '/ticket',
-                name: 'ticket',
-                label: '工单管理',
-                icon: 'List',
-                url: '/ticket',
-            },
-            {
-                path: '/ticketlist',
-                name: '/ticketlist',
-                label: '工单列表',
-                icon: 'Document',
+                path: '/createticket',
+                name: 'createticket',
+                label: '创建工单',
+                icon: 'CirclePlus',
                 url: '/ticket/ticketlist'
-            },
-            {
-                label: '其他',
-                icon: 'location',
-                path: '/other',
-                name: 'other',
-                url: '/others',
-                children: [
-                    {
-                        path: '/createticket',
-                        name: 'createticket',
-                        label: '创建工单',
-                        icon: 'CirclePlus',
-                        url: '/ticket/ticketlist'
-                    },
-                    {
-                        path: '/myticket',
-                        name: '/myticket',
-                        label: '我的工单',
-                        icon: 'Ticket',
-                        url: '/ticket/ticketlist'
-                    },
-                ]
-            },
-        ];
-        const nochildren = () => {
-            return list.filter((item) => !item.children)
-        };
-        const haschildren = () => {
-            return list.filter((item) => item.children)
-        };
-        const defaultactive = ref(sessionStorage.getItem('path'));
-        const savepath = (path) =>{
-            sessionStorage.setItem('path',`$(path)`)
-        }
-        return {
-            nochildren,
-            haschildren,
-            defaultactive,
-            savepath
-        }
-    }
+            }
+        ]
+    },
+];
+const nochildren = () => {
+    return list.filter((item) => !item.children)
+};
+const haschildren = () => {
+    return list.filter((item) => item.children)
+};
+const defaultactive = ref(sessionStorage.getItem('path'));
+const savepath = (path) =>{
+    sessionStorage.setItem('path',`$(path)`)
 }
+
 </script>
 
 <style lang="less" scoped>

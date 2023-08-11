@@ -7,7 +7,7 @@ export const login = (data) => {
   
 
 // 获取工单接口
-export const getallticket = (data) => {
+export const getalltickets = (data) => {
   return http.get('/api/all/tickets',data);
 };
 
@@ -34,14 +34,16 @@ export const delticket = (id) => {
   };
 
 //编辑工单接口
-export const putticket = (id) => {
+export const putticket = (id,data) => {
   const formDataConfig = {
     headers: {
       'Content-Type': 'multipart/form-data',
     },
   };
-    return http.put(`/api/ticket/${id}`,formDataConfig);
+    return http.put(`/api/ticket/${id}`,data,formDataConfig);
   };
+
+
 
   //创建工单
   export const createticket = (data) => {

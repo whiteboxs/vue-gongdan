@@ -47,12 +47,12 @@ const list= [
 ]
 
 
-import { getallticket} from '../http/api.js'
+import { getalltickets } from '../http/api.js'
 import { ref} from 'vue'
 const ticketlistdata = ref([])
 const getlist = async () => {
   //接口调用
-  const res = await getallticket()
+  const res = await getalltickets()
   console.log(res.data.data)
 
   //获取的数据交给list存放

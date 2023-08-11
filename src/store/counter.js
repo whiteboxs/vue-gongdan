@@ -1,4 +1,3 @@
-
 import { defineStore } from "pinia";
 import { getusers } from '../http/api'
 export const usecounterstore = defineStore('counter', () => {

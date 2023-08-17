@@ -92,8 +92,6 @@ const assigneelist = async () => {
   assigneedata.value = res.data.data
 }
 
-
-
 onMounted(() => assigneelist())
 
 const open = (row) => {

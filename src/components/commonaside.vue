@@ -15,7 +15,7 @@
                 <span>{{ item.label }}</span>             
             </el-menu-item>
               <!--带子层的边框-->
-            <el-sub-menu :index="item.path" v-for="item in haschildren()" :key='item.path'>
+            <el-sub-menu :index="item.path" v-for="item in haschildren()" :key='item.path'  style="font-size: 16px"   >
                 <template #title>
                     <component class="icons" :is="item.icon"></component>
                     <span>{{ item.label }}</span>
@@ -50,13 +50,6 @@ const list = [
         url: '/usermanage'
     },
     {
-        path: '/ticket',
-        name: 'ticket',
-        label: '工单管理',
-        icon: 'List',
-        url: '/ticket',
-    },
-    {
         path: '/ticketlist',
         name: '/ticketlist',
         label: '工单列表',
@@ -64,32 +57,32 @@ const list = [
         url: '/ticket/ticketlist'
     },
     {
-        path: '/ticketprocessed',
-        name: '/ticketprocessed',
-        label: '工单处理',
-        icon: 'Document',
-        url: '/ticket/ticketprocessed'
-    },
-    {
-        label: '其他',
-        icon: 'location',
-        path: '/other',
-        name: 'other',
-        url: '/others',
+        name: 'ticket',
+        label: '工单管理',
+        icon: 'List',
         children: [
             {
-                path: '/createticket',
+                path: '/user_tickets',
                 name: 'createticket',
                 label: '创建工单',
                 icon: 'CirclePlus',
-                url: '/ticket/ticketlist'
-            }
+                url: '/user_ticket/myticketlist'
+            },
+            {
+                path: '/ticketlist',
+                path: '/ticketprocessed',
+                name: '/ticketprocessed',
+                label: '工单处理',
+                icon: 'Document',
+                url: '/ticket/ticketprocessed'
+            },
         ]
     },
 ];
 const nochildren = () => {
     return list.filter((item) => !item.children)
 };
+
 const haschildren = () => {
     return list.filter((item) => item.children)
 };
@@ -114,15 +107,27 @@ const savepath = (path) =>{
         font-size: 16px;
         font-weight: 400;
     }
+}
 .el-menu-item{
     font-size: 16px;
     font-weight: 400;
 }
+.el-menu-item-group{
+    font-size: 16px;
+    font-weight: 400;
+}
+:root {
+  --el-font-size-medium: 16px !important;
+}
+.el-meement 
 .el-sub-menu{
     font-size: 16px;
     font-weight: 400;
 }
-}
+
+
+
+
 </style>
 
 

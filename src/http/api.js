@@ -6,11 +6,14 @@ export const login = (data) => {
   };
   
 
-// 获取工单接口
+// 获取all工单接口
 export const getalltickets = (data) => {
-  return http.get('/api/all/tickets',data);
+  return http.get('/api/all/tickets',{params:data});
 };
-
+// 获取登录用户的工单
+export const getusertickets = (data) => {
+  return http.get('/api/user_tickets',{params:data});
+};
 
   // 获取环境信息接口
   export const getenvironments = (data) => {

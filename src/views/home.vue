@@ -1,12 +1,12 @@
 <template>
     <div class="common-layout">
-      <el-container>
+      <el-container class="lay-container">
         <commonaside/>
         <el-container>
           <commonheader/>
-          <el-main>
+          <el-main class="right-main">
             <router-view/>
-          </el-main>
+          </el-main > 
         </el-container>
       </el-container>
     </div>
@@ -29,6 +29,15 @@ export default defineComponent ({
 .el-container{
   flex-wrap: wrap;
   align-items: flex-start;
+  height: 100%;
+}
+.common-layout{
+  .lay-container{
+    flex-wrap: nowrap;
+    .right-main{
+      height: calc(100%-124px);
+    }
+  }   
 }
 
 </style>

@@ -20,7 +20,6 @@
 <script setup>
 import { reactive } from 'vue'
 import { ElMessage } from 'element-plus'
-import { login } from '../http/api.js'
 import router from '../router/index.js'
 import { setTokenTime } from '../utils/auth.js'
 //pinia
@@ -38,8 +37,9 @@ const subfun = async () => { // 将subfun函数声明为异步函数
         return;
     }
     try {
-        const res = await login(loginData); // 使用await等待login函数返回的Promise结果
-        usestore.login(res.data.token);
+     //   const res = await login(loginData); // 使用await等待login函数返回的Promise结果
+        await usestore.getuserinfo(loginData)
+        //usestore.login(res.data);
         // 获取登录的时候获取token的时间
         setTokenTime()
         router.replace('/home');

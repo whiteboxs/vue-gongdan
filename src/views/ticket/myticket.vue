@@ -1,10 +1,10 @@
 <template>
-  <el-card>
+  <el-card class="manage">
     <el-row :gutter="20" class="header">
       <el-col :span="7">
-        <el-input placeholder="请输入"></el-input>
+        <el-input placeholder="请输入" v-model="queryform.keyword"></el-input>
       </el-col>
-      <el-button type="primary" :icon="Search" @click="search" >Search</el-button>
+      <el-button type="primary" icon="Search" @click="onSearch">Search</el-button>
       <el-button type="primary" @click="centerDialogVisible = true">
         +新增工单
       </el-button>
@@ -28,19 +28,10 @@
           </el-select>
         </el-form-item>
 
-        <el-upload
-      ref="upload"
-      class="upload-files"
-      action=""
-      name="files"
-      multiple
-      :auto-upload="false"
-      :file-list="fileList"
-      :on-change="handleChange"
-      style="margin-top: 20px"
-  >
-    <el-button slot="trigger" type="primary">选取文件</el-button>
-  </el-upload>
+        <el-upload ref="upload" class="upload-files" action="" name="files" multiple :auto-upload="false"
+          :file-list="fileList" :on-change="handleChange" style="margin-top: 20px">
+          <el-button slot="trigger" type="primary">选取文件</el-button>
+        </el-upload>
 
       </el-form>
       <template #footer>
@@ -49,59 +40,69 @@
           <el-button type="primary" @click="submit">创建</el-button>
         </span>
       </template>
-    </el-dialog>
-    <el-table :data="allticketstore.allticketlist" style="width: 100%">
-      <el-table-column fixed prop="create_time" label="创建日期" width="150" sortable />
-      <el-table-column :label="item.label" :prop="item.prop" v-for="(item, index) in list" :key="index" width="140" />
-      <el-table-column fixed="right" label="操作" width="120">
+    </el-dialog>    
+ 
+    <el-table :data="myticketstore.myticketlist" 
+    flex="true"
+    :header-cell-style="{background:'#eef1f6',color:'#606266'}"
+    stripe
+    style="width: 100%"
+    height="700"
+    >
+      <!-- <el-table-column  prop="create_time" label="创建日期" width="176px" min-width="10%" /> -->
+      <el-table-column :label="item.label" :prop="item.prop" v-for="(item, index) in list " :key="index" min-width="10%" />
+      <el-table-column  label="操作" width="145px" min-width="10%">
         <template #default="{ row }">
           <el-button type="primary" @click="onEdit(row)" link>编辑</el-button>
           <el-button link type="danger" @click="ticketDelete(row.id)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
-  </el-card>
-  <ticketEdit ref="editref" @onupdate="allticketstore.getallticket" />
-
-  <!-- <el-pagination
-      v-model:current-page="currentPage4"
-      v-model:page-size="pageSize4"
-      :page-sizes="[100, 200, 300, 400]"
-      :small="small"
-      :disabled="disabled"
-      :background="background"
+    <el-pagination
+      v-model:current-page="queryform.pagenum"
+      :page-size="queryform.pagesize"
+      :page-sizes="[10, 20, 30, 40]"
+      background
       layout="total, sizes, prev, pager, next, jumper"
-      :total="400"
+      :total="myticketstore.count"
       @size-change="handleSizeChange"
       @current-change="handleCurrentChange"
-    /> -->
+    />
+  </el-card>
+  <ticketEdit ref="editref" @onupdate="myticketstore.getmytickets" />
 </template>
 
 
 <script setup >
-import { Search,UploadFilled} from '@element-plus/icons-vue'
+// import { Search, UploadFilled } from '@/element-plus/icons-vue'
 import { onMounted } from 'vue';
-import { delticket, createticket } from '../http/api.js'
-import { useassigneestore } from '../store/assignee.js'
-import { useenvironmentstore } from '../store/environment.js'
-import { useallticketstore } from '../store/allticket.js'
+import { delticket, createticket } from '@/http/api.js'
+import { useassigneestore } from '@/store/assignee.js'
+import { useenvironmentstore } from '@/store/environment.js'
+import { usemyticketstore } from '@/store/userticket.js'
+// onMounted(() => {
+// const usestore =useAuthStore();
+//    const userid= usestore.userid;
+//    console.log('id',userid)
+// })
 //经办人
 const assigneestore = useassigneestore()
 //环境
 const environmentstore = useenvironmentstore()
 //工单
-const allticketstore = useallticketstore()
+const myticketstore = usemyticketstore()
 
 
 onMounted(() => {
   assigneestore.getassignee(),
     environmentstore.getenvironment(),
-    allticketstore.getallticket()
-})
+    myticketstore.getmytickets()
+  })
+
 
 const centerDialogVisible = ref(false)
 
-import { ref, reactive, unref } from 'vue'
+import { ref, reactive } from 'vue'
 const form = reactive({
   title: '',
   environment_id: '',
@@ -122,24 +123,24 @@ const submit = async () => {
     }
     // 如果验证通过，执行表单提交逻辑
     const formData = new FormData();
-      formData.append('title', form.title);
-      formData.append('environment_id', form.environment_id);
-      formData.append('description', form.description);
-      formData.append('assignee_id', form.assignee_id);
-      fileList.value.forEach(item => {
-    // 这里有个坑，在将文件append到formData的时候， item其实并不是真是数据 item.raw才是
-    formData.append('attachment', item.raw)
-  })
-for (let pair of formData.entries()) {
-  console.log('xx',pair);
-}
+    formData.append('title', form.title);
+    formData.append('environment_id', form.environment_id);
+    formData.append('description', form.description);
+    formData.append('assignee_id', form.assignee_id);
+    fileList.value.forEach(item => {
+      // 这里有个坑，在将文件append到formData的时候， item其实并不是真是数据 item.raw才是
+      formData.append('attachment', item.raw)
+    })
+    for (let pair of formData.entries()) {
+      console.log('xx', pair);
+    }
     const res = await createticket(formData);
     console.log("验证成功");
     //清除提交的表单
     addRuleForm.value.resetFields()
     // 关闭窗口和刷新列表
     centerDialogVisible.value = false;
-    allticketstore.getallticket();
+    myticketstore.getmytickets();
   } catch (err) {
     console.log("表单验证出错：" + err);
   }
@@ -177,6 +178,10 @@ const rules = reactive({
 
 const list = [
   {
+    label: '创建日期',
+    prop: 'create_time'
+  },
+  {
     label: '工单编号',
     prop: 'id'
   },
@@ -212,34 +217,74 @@ const list = [
 //工单删除
 const ticketDelete = async (id) => {
   await delticket(id)
-  allticketstore.getallticket()
+  myticketstore.getmytickets()
 
 }
 
 //工单编辑
-import ticketEdit from '../components/ticketEdit.vue';
+import ticketEdit from '@/components/ticketEdit.vue';
+
+
+
 const editref = ref(null)
 const onEdit = (row) => {
   console.log('onedit', onEdit)
   editref.value.open(row)
 }
 
-
-const search = () => {
-  // Implement search logic here using 'searchText' value
-};
+//查询
+const onSearch = () => {
+  console.log('onSearch', queryform.value)
+  queryform.value.pagenum =1
+  queryform.value.pagesize=10
+  myticketstore.getmytickets(queryform.value)
+}
 
 
 //上传
 
-const fileList = ref([]) 
+const fileList = ref([])
 
 const handleChange = (file, files) => {
   // file是当前上传的文件，files是当前所有的文件，
   // 不懂得话可以打印一下这两个数据 就能明白
-  
+
   fileList.value = files
 }
+
+
+
+
+//传入后端的查询或者分页参数
+const queryform = ref({
+  keyword:'',
+  pagenum:1,
+  pagesize:10
+}); // 当前页数
+
+// 分页
+// const total = ref(0); // 总条数
+
+// //总页数
+//   allticketstore.getallticket();
+//   total.value= allticketstore.allticketlist;
+//   console.log('页数',total.value)
+
+
+
+const handleSizeChange =(pageSize) => {
+  queryform.value.pagenum =1
+  queryform.value.pagesize = pageSize
+  myticketstore.getmytickets(queryform.value);
+}
+
+// 处理当前页码改变事件
+const handleCurrentChange =  (pageNum) => {
+ // console.log('Change', pageNum
+  queryform.value.pagenum = pageNum;
+  console.log('上传的参数',queryform.value)
+  myticketstore.getmytickets(queryform.value);
+};
 
 
 
@@ -256,4 +301,17 @@ const handleChange = (file, files) => {
   padding-bottom: 16px;
   box-sizing: border-box;
 }
-</style>
+
+
+  .el-pagination {
+    justify-content: center;
+    position:relative;
+    bottom:-10px;
+  }
+
+// :deep .el-table__fixed{
+//      height: auto !important; // 让固定列的高自适应
+//      bottom: 0px !important; //固定列默认设置了定位 
+//      right: 10px !important;
+// }
+</style>  

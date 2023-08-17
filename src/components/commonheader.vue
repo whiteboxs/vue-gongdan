@@ -19,7 +19,7 @@
              <template #dropdown>
                 <el-dropdown-menu>
                     <el-dropdown-item>个人中心</el-dropdown-item>
-                    <el-dropdown-item @click="logout">退出</el-dropdown-item>
+                    <el-dropdown-item @click="handleLogout">退出</el-dropdown-item>
 
                 </el-dropdown-menu>
              </template>
@@ -33,12 +33,12 @@ import router from '../router/index.js'
 //pinia
 import {useAuthStore} from '../store/user.js'
 const usestore =useAuthStore()
-    const logout = () => {
-      // 在这里执行退出系统的操作，例如清理本地存储或使JWT失效等
-    usestore.logout();
-      // 导航到登录页面
-      router.replace('/login');
-    };
+const handleLogout = () => {
+  usestore.logout() // 调用 logout 方法
+  // 导航到登录页面
+  router.replace('/login')
+}
+
 
 </script>
 

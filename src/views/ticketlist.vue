@@ -1,10 +1,9 @@
 <template>
  <div class="app">
-    <el-table :data="ticketlistdata" class="">
+    <el-table :data="ticketlistdata" class="man" >
       <el-table-column :label="item.label" v-for="(item,index) in list" :key="index" :prop="item.prop" />
     </el-table>
   </div>
-  <Edit ref="editref" @onupdate="getlist"/>
 </template>
 
 
@@ -53,7 +52,7 @@ const ticketlistdata = ref([])
 const getlist = async () => {
   //接口调用
   const res = await getalltickets()
-  console.log(res.data.data)
+  console.log('list',res)
 
   //获取的数据交给list存放
   //console.log('Is the response an array?', Array.isArray(res.data.data));

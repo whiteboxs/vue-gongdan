@@ -26,7 +26,6 @@ export const useAuthStore = defineStore('user', () => {
   const getuserinfo = async(logDate) => {
     const res = await login(logDate)
     userinfo.value= res.data
-    console.log(res.data)
   }
 
   return {

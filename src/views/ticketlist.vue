@@ -32,7 +32,7 @@ const list= [
            },
            {
                 label: '指派人',
-                prop: 'user_id'
+                prop: 'reporter'
            },
            {
                 label: '经办人',
@@ -70,5 +70,7 @@ onMounted(() =>  getlist())
 .app {
   width: 980px;
   margin: 100px auto 0;
+  width: 100%;
+  height: 100%;
 }
 </style>

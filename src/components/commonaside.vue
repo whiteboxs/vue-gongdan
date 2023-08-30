@@ -1,15 +1,17 @@
 <template>
-    <el-aside width="300px">
+    <el-aside :width="!hanbaoStore.collapse ? '300px' : '64px'">
         
         <el-menu class="el-menu-vertical-demo" 
         background-color="#545c64" 
         text-color="#fff" 
         active-text-color="#ffd04b"
         :default-active="defaultactive"
+        :collapse="hanbaoStore.collapse"
+        :collapse-transition="false"
         router
         >
               <!--不带子层的边框-->
-            <h3>工单管理系统</h3>   
+            <!-- <h3>工单管理系统</h3>    -->
             <el-menu-item :index="item.path" v-for="item in nochildren()" :key="item.path" @click="savepath(item.path)">
                 <component class="icons" :is="item.icon"></component>
                 <span>{{ item.label }}</span>             
@@ -34,6 +36,8 @@
 
 
 <script setup>
+import {usehanbaoStore} from '../store/hanbaoanniu.js'
+const hanbaoStore = usehanbaoStore()
 const list = [
     {
         path: '/home',
@@ -57,6 +61,7 @@ const list = [
         url: '/ticket/ticketlist'
     },
     {
+        path: '/ticket',
         name: 'ticket',
         label: '工单管理',
         icon: 'List',
@@ -69,12 +74,11 @@ const list = [
                 url: '/user_ticket/myticketlist'
             },
             {
-                path: '/ticketlist',
-                path: '/ticketprocessed',
-                name: '/ticketprocessed',
+                path: '/ticket_processing',
+                name: 'ticket_processing',
                 label: '工单处理',
                 icon: 'Document',
-                url: '/ticket/ticketprocessed'
+                url: '/ticket//ticket_processing'
             },
         ]
     },
@@ -89,6 +93,8 @@ const haschildren = () => {
 const defaultactive = ref(sessionStorage.getItem('path'));
 const savepath = (path) =>{
     sessionStorage.setItem('path',`$(path)`)
+
+
 }
 
 </script>
@@ -100,11 +106,12 @@ const savepath = (path) =>{
 }
 .el-menu{
     height: 100vh;
+    border-right: none;
     h3 {
         color:#fff;
         text-align: center;
         line-height: 48px;
-        font-size: 16px;
+        font-size: 18px;
         font-weight: 400;
     }
 }

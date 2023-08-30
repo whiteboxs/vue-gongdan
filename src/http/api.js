@@ -57,3 +57,22 @@ export const putticket = (id,data) => {
     };
     return http.post('/api/ticket', data, formDataConfig);
   };
+
+
+
+  // 获取指派给自己的工单
+export const getticket_processing = (data) => {
+  return http.get('/api/ticket_processing',{params:data});
+};
+
+
+
+  // 创建问题反馈
+  export const create_ticket_feedback = (data) => {
+    const formDataConfig = {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    };
+    return http.post('/api/ticket_feedbacks', data, formDataConfig);
+  };

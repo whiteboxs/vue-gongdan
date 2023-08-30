@@ -47,7 +47,7 @@
     :header-cell-style="{background:'#eef1f6',color:'#606266'}"
     stripe
     style="width: 100%"
-    height="700"
+    height="100%"
     >
       <!-- <el-table-column  prop="create_time" label="创建日期" width="176px" min-width="10%" /> -->
       <el-table-column :label="item.label" :prop="item.prop" v-for="(item, index) in list " :key="index" min-width="10%" />
@@ -203,7 +203,7 @@ const list = [
   },
   {
     label: '指派人',
-    prop: 'username'
+    prop: 'reporter'
   },
   {
     label: '经办人',
@@ -301,7 +301,9 @@ const handleCurrentChange =  (pageNum) => {
   padding-bottom: 16px;
   box-sizing: border-box;
 }
-
+.manage{
+  height: 100%;
+}
 
   .el-pagination {
     justify-content: center;

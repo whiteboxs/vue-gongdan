@@ -2,7 +2,7 @@
     <div class="common-layout">
       <el-container class="lay-container">
         <commonaside/>
-        <el-container>
+        <el-container class="r-container">
           <commonheader/>
           <el-main class="right-main">
             <router-view/>
@@ -32,10 +32,21 @@ export default defineComponent ({
   height: 100%;
 }
 .common-layout{
+  height: 100%;
+  &.el-container{
+    height: 100%;
+    &.el.aside{
+      height: 100vh;
+      background: #545c64 ;
+    }
+  }
+
+
   .lay-container{
     flex-wrap: nowrap;
+
     .right-main{
-      height: calc(100%-124px);
+
     }
   }   
 }

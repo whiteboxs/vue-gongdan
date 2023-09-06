@@ -27,12 +27,23 @@
             <el-option :label="item.name" :value="item.id" v-for="item in assigneestore.assigneelist" :key="item.id" />
           </el-select>
         </el-form-item>
-
-        <el-upload ref="upload" class="upload-files" action="" name="files" multiple :auto-upload="false"
+        <!-- <el-upload ref="upload" class="upload-files" action="" name="files" multiple :auto-upload="false"
           :file-list="fileList" :on-change="handleChange" style="margin-top: 20px">
           <el-button slot="trigger" type="primary">选取文件</el-button>
-        </el-upload>
+        </el-upload> -->
+        <el-upload
+            v-model:file-list="fileList"
+            action="https://run.mocky.io/v3/9d059bf9-4660-45f2-925d-ce80ad6c4d15"
+            list-type="picture-card"
+            :on-preview="handlePictureCardPreview"
+            :on-remove="handleRemove"
+          >
+            <el-icon><Plus /></el-icon>
+      </el-upload>
 
+  <el-dialog v-model="dialogVisible">
+    <img w-full :src="dialogImageUrl" alt="Preview Image" />
+  </el-dialog>
       </el-form>
       <template #footer>
         <span class="dialog-footer">
@@ -40,34 +51,23 @@
           <el-button type="primary" @click="submit">创建</el-button>
         </span>
       </template>
-    </el-dialog>    
- 
-    <el-table :data="myticketstore.myticketlist" 
-    flex="true"
-    :header-cell-style="{background:'#eef1f6',color:'#606266'}"
-    stripe
-    style="width: 100%"
-    height="100%"
-    >
+    </el-dialog>
+
+    <el-table :data="myticketstore.myticketlist" flex="true" :header-cell-style="{ background: '#eef1f6', color: '#606266' }"
+      stripe style="width: 100%" height="100%">
       <!-- <el-table-column  prop="create_time" label="创建日期" width="176px" min-width="10%" /> -->
-      <el-table-column :label="item.label" :prop="item.prop" v-for="(item, index) in list " :key="index" min-width="10%" />
-      <el-table-column  label="操作" width="145px" min-width="10%">
+      <el-table-column :label="item.label" :prop="item.prop" v-for="(item, index) in list " :key="index"
+        min-width="10%" />
+      <el-table-column label="操作" width="145px" min-width="10%">
         <template #default="{ row }">
           <el-button type="primary" @click="onEdit(row)" link>编辑</el-button>
           <el-button link type="danger" @click="ticketDelete(row.id)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
-    <el-pagination
-      v-model:current-page="queryform.pagenum"
-      :page-size="queryform.pagesize"
-      :page-sizes="[10, 20, 30, 40]"
-      background
-      layout="total, sizes, prev, pager, next, jumper"
-      :total="myticketstore.count"
-      @size-change="handleSizeChange"
-      @current-change="handleCurrentChange"
-    />
+    <el-pagination v-model:current-page="queryform.pagenum" :page-size="queryform.pagesize" :page-sizes="[10, 20, 30, 40]"
+      background layout="total, sizes, prev, pager, next, jumper" :total="myticketstore.count"
+      @size-change="handleSizeChange" @current-change="handleCurrentChange" />
   </el-card>
   <ticketEdit ref="editref" @onupdate="myticketstore.getmytickets" />
 </template>
@@ -80,6 +80,9 @@ import { delticket, createticket } from '@/http/api.js'
 import { useassigneestore } from '@/store/assignee.js'
 import { useenvironmentstore } from '@/store/environment.js'
 import { usemyticketstore } from '@/store/userticket.js'
+import { Plus } from '@element-plus/icons-vue'
+
+import { UploadProps, UploadUserFile } from 'element-plus'
 // onMounted(() => {
 // const usestore =useAuthStore();
 //    const userid= usestore.userid;
@@ -97,7 +100,7 @@ onMounted(() => {
   assigneestore.getassignee(),
     environmentstore.getenvironment(),
     myticketstore.getmytickets()
-  })
+})
 
 
 const centerDialogVisible = ref(false)
@@ -235,31 +238,58 @@ const onEdit = (row) => {
 //查询
 const onSearch = () => {
   console.log('onSearch', queryform.value)
-  queryform.value.pagenum =1
-  queryform.value.pagesize=10
+  queryform.value.pagenum = 1
+  queryform.value.pagesize = 10
   myticketstore.getmytickets(queryform.value)
 }
 
 
 //上传
 
-const fileList = ref([])
+// const fileList = ref([])
 
-const handleChange = (file, files) => {
-  // file是当前上传的文件，files是当前所有的文件，
-  // 不懂得话可以打印一下这两个数据 就能明白
+// const handleChange = (file, files) => {
+//   // file是当前上传的文件，files是当前所有的文件，
+//   // 不懂得话可以打印一下这两个数据 就能明白
 
-  fileList.value = files
-}
+//   fileList.value = files
+// }
+const fileList = ref<UploadUserFile[]>([
+  {
+    name: 'food.jpeg',
+    url: 'https://fuss10.elemecdn.com/3/63/4e7f3a15429bfda99bce42a18cdd1jpeg.jpeg?imageMogr2/thumbnail/360x360/format/webp/quality/100',
+  },
+  {
+    name: 'plant-1.png',
+    url: '/images/plant-1.png',
+  },
+  {
+    name: 'food.jpeg',
+    url: 'https://fuss10.elemecdn.com/3/63/4e7f3a15429bfda99bce42a18cdd1jpeg.jpeg?imageMogr2/thumbnail/360x360/format/webp/quality/100',
+  }
+
+])
+
+const dialogImageUrl = ref('');
+const dialogVisible = ref(false);
+
+const handleRemove = (uploadFile, uploadFiles) => {
+  console.log(uploadFile, uploadFiles);
+};
+
+const handlePictureCardPreview = (uploadFile) => {
+  dialogImageUrl.value = uploadFile.url;
+  dialogVisible.value = true;
+};
 
 
 
 
 //传入后端的查询或者分页参数
 const queryform = ref({
-  keyword:'',
-  pagenum:1,
-  pagesize:10
+  keyword: '',
+  pagenum: 1,
+  pagesize: 10
 }); // 当前页数
 
 // 分页
@@ -272,17 +302,17 @@ const queryform = ref({
 
 
 
-const handleSizeChange =(pageSize) => {
-  queryform.value.pagenum =1
+const handleSizeChange = (pageSize) => {
+  queryform.value.pagenum = 1
   queryform.value.pagesize = pageSize
   myticketstore.getmytickets(queryform.value);
 }
 
 // 处理当前页码改变事件
-const handleCurrentChange =  (pageNum) => {
- // console.log('Change', pageNum
+const handleCurrentChange = (pageNum) => {
+  // console.log('Change', pageNum
   queryform.value.pagenum = pageNum;
-  console.log('上传的参数',queryform.value)
+  console.log('上传的参数', queryform.value)
   myticketstore.getmytickets(queryform.value);
 };
 
@@ -301,15 +331,16 @@ const handleCurrentChange =  (pageNum) => {
   padding-bottom: 16px;
   box-sizing: border-box;
 }
-.manage{
+
+.manage {
   height: 100%;
 }
 
-  .el-pagination {
-    justify-content: center;
-    position:relative;
-    bottom:-10px;
-  }
+.el-pagination {
+  justify-content: center;
+  position: relative;
+  bottom: -10px;
+}
 
 // :deep .el-table__fixed{
 //      height: auto !important; // 让固定列的高自适应

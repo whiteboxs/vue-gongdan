@@ -27,23 +27,18 @@
             <el-option :label="item.name" :value="item.id" v-for="item in assigneestore.assigneelist" :key="item.id" />
           </el-select>
         </el-form-item>
-        <!-- <el-upload ref="upload" class="upload-files" action="" name="files" multiple :auto-upload="false"
-          :file-list="fileList" :on-change="handleChange" style="margin-top: 20px">
-          <el-button slot="trigger" type="primary">选取文件</el-button>
-        </el-upload> -->
-        <el-upload
-            v-model:file-list="fileList"
-            action="https://run.mocky.io/v3/9d059bf9-4660-45f2-925d-ce80ad6c4d15"
-            list-type="picture-card"
-            :on-preview="handlePictureCardPreview"
-            :on-remove="handleRemove"
-          >
-            <el-icon><Plus /></el-icon>
-      </el-upload>
-
-  <el-dialog v-model="dialogVisible">
-    <img w-full :src="dialogImageUrl" alt="Preview Image" />
-  </el-dialog>
+        <el-upload 
+          ref="upload" 
+          class="upload-files" 
+          action="" 
+          name="files" 
+          multiple :auto-upload="false"
+          :file-list="fileList" 
+          :on-change="handleChange" 
+          style="margin-top: 20px">
+          <el-button slot="trigger" 
+          type="primary">选取文件</el-button>
+        </el-upload>
       </el-form>
       <template #footer>
         <span class="dialog-footer">
@@ -52,19 +47,30 @@
         </span>
       </template>
     </el-dialog>
-
     <el-table :data="myticketstore.myticketlist" flex="true" :header-cell-style="{ background: '#eef1f6', color: '#606266' }"
-      stripe style="width: 100%" height="100%">
-      <!-- <el-table-column  prop="create_time" label="创建日期" width="176px" min-width="10%" /> -->
+      stripe style="width: 100%" max-height="700px" >
       <el-table-column :label="item.label" :prop="item.prop" v-for="(item, index) in list " :key="index"
         min-width="10%" />
+        <el-table-column prop="attachment_url" label="附件" min-width="20%" align="center" >
+          <template #default="{ row }">
+           <template v-if="row.attachment_url">
+            <div v-for="(item, index) in row.attachment_url.split(',')" :key="index">
+            <img v-if="isImage(item.trim())" :src="item.trim()" width="50" height="50" @click="showDialog(item.trim())" style="cursor: pointer " />
+            <a v-else :href="item.trim()" target="_blank" rel="noopener noreferrer">{{ getFileNameFromUrl(item.trim()) }}</a>
+          </div>
+      </template>
+    </template>
+      </el-table-column>
       <el-table-column label="操作" width="145px" min-width="10%">
         <template #default="{ row }">
           <el-button type="primary" @click="onEdit(row)" link>编辑</el-button>
-          <el-button link type="danger" @click="ticketDelete(row.id)">删除</el-button>
+          <el-button link type="danger" @click="ticketDelete(row.ticket_id)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
+    <el-dialog :visible.sync="dialogVisible" width="80%">
+      <img :src="dialogImageUrl" width="100%" />
+    </el-dialog>
     <el-pagination v-model:current-page="queryform.pagenum" :page-size="queryform.pagesize" :page-sizes="[10, 20, 30, 40]"
       background layout="total, sizes, prev, pager, next, jumper" :total="myticketstore.count"
       @size-change="handleSizeChange" @current-change="handleCurrentChange" />
@@ -81,8 +87,6 @@ import { useassigneestore } from '@/store/assignee.js'
 import { useenvironmentstore } from '@/store/environment.js'
 import { usemyticketstore } from '@/store/userticket.js'
 import { Plus } from '@element-plus/icons-vue'
-
-import { UploadProps, UploadUserFile } from 'element-plus'
 // onMounted(() => {
 // const usestore =useAuthStore();
 //    const userid= usestore.userid;
@@ -186,7 +190,7 @@ const list = [
   },
   {
     label: '工单编号',
-    prop: 'id'
+    prop: 'ticket_id'
   },
   {
     label: '标题',
@@ -219,19 +223,19 @@ const list = [
 
 //工单删除
 const ticketDelete = async (id) => {
+  console.log('ticketDelete', id)
   await delticket(id)
   myticketstore.getmytickets()
 
 }
 
 //工单编辑
-import ticketEdit from '@/components/ticketEdit.vue';
+import ticketEdit from '../../components/ticketEdit.vue';
 
 
 
 const editref = ref(null)
 const onEdit = (row) => {
-  console.log('onedit', onEdit)
   editref.value.open(row)
 }
 
@@ -244,43 +248,41 @@ const onSearch = () => {
 }
 
 
+//表格里的附件和图片显示判定
+const isImage = (url) => {
+  const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.bmp'];
+  const ext = url.substring(url.lastIndexOf('.')).toLowerCase();
+  return imageExtensions.includes(ext);
+}
+
+const getFileNameFromUrl = (url) => {
+  const fileName = url.split('/').pop();
+  const extension = fileName.split('.').pop();
+  const truncatedName = fileName.substring(0, 5);
+  return truncatedName + '.' + extension;
+};
+
+
+//表格里的图片点击预览
+const dialogVisible = ref(false);
+const dialogImageUrl = ref('');
+
+const showDialog = (url) => {
+  dialogVisible.value = true;
+  dialogImageUrl.value = url;
+  window.open(url, 'ImageWindow', 'width=1024,height=768');
+}
+
 //上传
 
-// const fileList = ref([])
+const fileList = ref([])
 
-// const handleChange = (file, files) => {
-//   // file是当前上传的文件，files是当前所有的文件，
-//   // 不懂得话可以打印一下这两个数据 就能明白
+const handleChange = (file, files) => {
+  // file是当前上传的文件，files是当前所有的文件，
+  // 不懂得话可以打印一下这两个数据 就能明白
 
-//   fileList.value = files
-// }
-const fileList = ref<UploadUserFile[]>([
-  {
-    name: 'food.jpeg',
-    url: 'https://fuss10.elemecdn.com/3/63/4e7f3a15429bfda99bce42a18cdd1jpeg.jpeg?imageMogr2/thumbnail/360x360/format/webp/quality/100',
-  },
-  {
-    name: 'plant-1.png',
-    url: '/images/plant-1.png',
-  },
-  {
-    name: 'food.jpeg',
-    url: 'https://fuss10.elemecdn.com/3/63/4e7f3a15429bfda99bce42a18cdd1jpeg.jpeg?imageMogr2/thumbnail/360x360/format/webp/quality/100',
-  }
-
-])
-
-const dialogImageUrl = ref('');
-const dialogVisible = ref(false);
-
-const handleRemove = (uploadFile, uploadFiles) => {
-  console.log(uploadFile, uploadFiles);
-};
-
-const handlePictureCardPreview = (uploadFile) => {
-  dialogImageUrl.value = uploadFile.url;
-  dialogVisible.value = true;
-};
+  fileList.value = files
+}
 
 
 
@@ -317,8 +319,6 @@ const handleCurrentChange = (pageNum) => {
 };
 
 
-
-
 </script>
 
 
@@ -342,9 +342,16 @@ const handleCurrentChange = (pageNum) => {
   bottom: -10px;
 }
 
+
+a{
+    color: blue;
+}
+
+
 // :deep .el-table__fixed{
 //      height: auto !important; // 让固定列的高自适应
 //      bottom: 0px !important; //固定列默认设置了定位 
 //      right: 10px !important;
 // }
 </style>  
+

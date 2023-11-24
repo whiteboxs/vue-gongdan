@@ -5,9 +5,6 @@
           <el-input placeholder="请输入" v-model="queryform.keyword"></el-input>
         </el-col>
         <el-button type="primary" icon="Search" @click="onSearch">Search</el-button>
-        <el-button type="primary" @click="centerDialogVisible = true">
-          +新增工单
-        </el-button>
       </el-row>
       <el-dialog v-model="centerDialogVisible" title="创建工单" width="50%" align-center :before-close="handleClose">
         <el-form :model="form" label-width="80px" :rules="rules" ref="addRuleForm">
@@ -34,12 +31,6 @@
           </el-upload>
   
         </el-form>
-        <template #footer>
-          <span class="dialog-footer">
-            <el-button @click="handleClose">取消</el-button>
-            <el-button type="primary" @click="submit">创建</el-button>
-          </span>
-        </template>
       </el-dialog>    
    
       <el-table :data="myticket_processing.myticket_processinglist" 
@@ -47,13 +38,22 @@
       :header-cell-style="{background:'#eef1f6',color:'#606266'}"
       stripe
       style="width: 100%"
-      height="700"
+      max-height="700"
       >
-        <!-- <el-table-column  prop="create_time" label="创建日期" width="176px" min-width="10%" /> -->
         <el-table-column :label="item.label" :prop="item.prop" v-for="(item, index) in list " :key="index" min-width="10%" />
+        <el-table-column prop="attachment_url" label="附件" min-width="20%" align="center" >
+          <template #default="{ row }">
+           <template v-if="row.attachment_url">
+            <div v-for="(item, index) in row.attachment_url.split(',')" :key="index">
+            <img v-if="isImage(item.trim())" :src="item.trim()" width="50" height="50" @click="showDialog(item.trim())" style="cursor: pointer " />
+            <a v-else :href="item.trim()" target="_blank" rel="noopener noreferrer">{{ getFileNameFromUrl(item.trim()) }}</a>
+          </div>
+      </template>
+    </template>
+      </el-table-column>
         <el-table-column  label="操作" width="145px" min-width="10%">
           <template #default="{ row }">
-            <el-button type="primary" @click="onEdit(row)" link>回复</el-button>
+            <el-button type="primary" @click="onEdit(row)" link>处理</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -240,6 +240,35 @@
   }
   
   
+
+
+  //表格里的附件和图片显示判定
+const isImage = (url) => {
+  const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.bmp'];
+  const ext = url.substring(url.lastIndexOf('.')).toLowerCase();
+  return imageExtensions.includes(ext);
+}
+
+const getFileNameFromUrl = (url) => {
+  const fileName = url.split('/').pop();
+  const extension = fileName.split('.').pop();
+  const truncatedName = fileName.substring(0, 5);
+  return truncatedName + '.' + extension;
+};
+
+
+//表格里的图片点击预览
+const dialogVisible = ref(false);
+const dialogImageUrl = ref('');
+
+const showDialog = (url) => {
+  dialogVisible.value = true;
+  dialogImageUrl.value = url;
+  window.open(url, 'ImageWindow', 'width=1024,height=768');
+}
+
+
+
   //上传
   
   const fileList = ref([])

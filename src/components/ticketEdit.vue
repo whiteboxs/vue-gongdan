@@ -49,7 +49,7 @@ const form = ref({
   environment_id: '',
   description: '',
   assignee_id: '',
-  id: ''
+  ticket_id: '',
 })
 
 const rules = reactive ({
@@ -97,12 +97,10 @@ onMounted(() => assigneelist())
 const open = (row) => {
   console.log('当前编辑行', row)
   form.value.title = row.title
-  form.value.id = row.id
+  form.value.ticket_id = row.ticket_id
   form.value.environment_id = row.environment
-  console.log('取到的env', form.value.environment_id)
   form.value.description = row.description
   form.value.assignee_id = row.assignee
-  console.log('取到的经办人', form.value.assignee_id)
   DialogVisible.value = true
 
 }
@@ -137,7 +135,7 @@ const onupdate = async () => {
     };
     console.log('put前没有转换的值',form.value)
     console.log('转换后的',updatedData)
-    await putticket(form.value.id, updatedData)
+    await putticket(form.value.ticket_id, updatedData)
     //清除提交的表单
     addRuleForm.value.resetFields()
     // 关闭窗口和刷新列表
